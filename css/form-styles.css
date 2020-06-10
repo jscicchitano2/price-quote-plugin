@@ -1,0 +1,103 @@
+button.form-button {
+    background-color: #425ccc;
+    margin: 2rem 0 2rem;
+}
+
+button.form-button:hover {
+    background-color: #41add3;
+}
+
+#price-quote-form {
+    text-align:center;
+}
+
+.form-question {
+    font-size: 2.5rem;
+    text-align: center;
+    margin: 0 auto 4rem;
+}
+
+.question {
+    font-size: 2.5rem;
+}
+
+#total-cost {
+    font-size: 7rem;
+    margin: 0 0 3rem 0;
+}
+
+#total-description {
+    max-width: 60rem;
+    font-size: 2.2rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#form-outer-div {
+    padding: 3rem 2rem 4rem 2rem;
+    width: 100%;
+    background-color: white;
+}
+
+.form-text {
+    max-width: 100rem;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.form-text input {
+    max-width: 60rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.form-text label {
+    font-size: 2rem;
+}
+
+div.multiple-inputs {
+    display: inline-block;
+    text-align: left;
+    min-width: 15rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+input[type='radio'] { 
+    transform: scale(2); 
+    margin: 0 1.5rem 0 0;
+}
+
+input[type='checkbox'] { 
+    transform: scale(2); 
+    margin: 0 1.5rem 0 0;
+}
+
+label.label {
+    margin-bottom: 1.25rem;
+}
+
+.last-form h2 {
+    text-align: center;
+}
+
+#stripe-buttons { 
+    text-align: center;
+}
+
+.entry-content > #form-outer-div:not(.alignwide):not(.alignfull):not(.alignleft):not(.alignright):not(.is-style-wide) {
+    max-width: unset;
+    width: unset;
+}
+.entry-content > *:last-child {
+    margin-bottom: 0;
+}
+.entry-content > *:first-child {
+    margin-top: 0;
+}
+.entry-content > * {
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 1.25em;
+}
