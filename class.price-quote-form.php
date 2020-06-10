@@ -58,6 +58,7 @@ class Price_Quote_Form
   function form_acf_json_save_point( $path ) {
     // update path.
     $path = plugin_dir_path( __FILE__ ) . '/acf-json';
+    var_dump($path);
 
     // return.
     return $path;
@@ -274,13 +275,9 @@ class Price_Quote_Form
     wp_register_style( 'form-styles',  plugin_dir_url( __FILE__ ) . 'css/form-styles.css' );
     wp_enqueue_style( 'form-styles' );
 
-    /*
-    $mod_styles = get_field( 'module-style', $atts->id );
-    $mod_styles = preg_replace('/\s+/', ' ', $mod_styles);
+    $form_styles = get_field( 'custom_styles', $atts->id );
+    $form_styles = preg_replace('/\s+/', ' ', $form_styles);
 
-    wp_register_style( 'module-styles',  plugin_dir_url( __FILE__ ) . 'css/uw-module.css' );
-    wp_enqueue_style( 'module-styles' );
-    */
     $lastreturn .= sprintf( self::FORM_LAST, $title );
 
     $args = array(
@@ -294,15 +291,13 @@ class Price_Quote_Form
       $stripereturn .= do_shortcode('[simpay id="' . $post->ID . '"]');
     }
 
-    return $formreturn . '</form>' . $lastreturn . '<div id="stripe-buttons" style="display:none;">' . $stripereturn . '</div></div>';
-    /*
+    return ($formreturn . '</form>' . $lastreturn . '<div id="stripe-buttons" style="display:none;">' . $stripereturn . '</div></div>' .
     '<script>' .
-      'var menu = $("#mobile-relative");' .
-      'var modStyles = document.createElement("style");' .
-      'modStyles.innerHTML = "' . $mod_styles . '";' .
-      '$( "head" ).append(modStyles);' .
-    '</script>';
-    */
+      'var formStyles = document.createElement("style");' .
+      'formStyles.innerHTML = "' . $form_styles . '";' .
+      'document.getElementsByTagName("head")[0].appendChild(formStyles);' .
+    '</script>');
+    
   }
 
   // Generate form shortcode content
