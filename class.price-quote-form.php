@@ -26,7 +26,7 @@ class Price_Quote_Form
     }
     require_once plugin_dir_path( __FILE__ ) . '/includes/acf/acf.php';
     add_filter( 'acf/settings/url', array( $this, 'form_acf_settings_url' ) );
-    add_filter( 'acf/settings/show_admin', array( $this, 'form_acf_settings_show_admin' ) );
+    //add_filter( 'acf/settings/show_admin', array( $this, 'form_acf_settings_show_admin' ) );
     add_filter( 'acf/settings/save_json', array( $this, 'form_acf_json_save_point' ) );
     add_filter( 'acf/settings/load_json', array( $this, 'form_acf_json_load_point' ) );
 
@@ -50,10 +50,12 @@ class Price_Quote_Form
     return plugin_dir_url( __FILE__ ) . '/includes/acf/';
   }
 
+  /*
   // Hide the ACF admin menu item.
   function form_acf_settings_show_admin( $show_admin ) {
     return false;
   }
+  */
 
   function form_acf_json_save_point( $path ) {
     // update path.
