@@ -92,7 +92,7 @@ jQuery(document).ready( function() {
             }
         }
 
-        if (questions[formNumber + 1]) {
+        if (questions[formNumber + 1] != null) {
             var currentScoring = JSON.parse(questions[formNumber].dataset.score);
             currentScoring.forEach(function(values) {
                 if (values[0] === "range") {
@@ -126,29 +126,28 @@ jQuery(document).ready( function() {
             formResponses['priceTotal'] = priceTotal;
             formResponses['emailSent'] = emailSent;
             formResponses['postID'] = postID;
-            questions['lastForm'] = 'false';
+            formResponses['lastForm'] = 'false';
 
             questions[formNumber].style.display = 'none';
             questions[formNumber + 1].style.display = 'block';
-            formNumber = formNumber + 1;
-
-            if (!questions[formNumber + 1]) {
-                questions['lastForm'] = 'true';
-                form.remove();
-                document.querySelector('.last-form').style.display = 'block';
-                document.getElementById('total-cost').innerHTML = '<strong>$' + priceTotal + '.00</strong>';
-                document.getElementById('total-description').innerHTML = '<strong>Your custom home maintenance would cost $' + priceTotal + '.00 per month. Pay now and schedule your 1st maintenance visit.</strong>';
-                stripeContainer.style.display = 'block';
-                for (var i = 0; i < scoringRules.length; i++) {
-                    var lowerBound = parseInt(scoringRules[i][0][0]);
-                    var upperBound = parseInt(scoringRules[i][0][1]);
-                    var price = parseInt(scoringRules[i][1]);
-                    if (scoreTotal >= lowerBound && (scoreTotal < upperBound || i == scoringRules.length - 1)) {
-                        stripeButtons[i].style.display = 'block';
-                    }
+        } else {
+            questions[formNumber].style.display = 'none';
+            formResponses['lastForm'] = 'true';
+            form.remove();
+            document.querySelector('.last-form').style.display = 'block';
+            document.getElementById('total-cost').innerHTML = '<strong>$' + priceTotal + '.00</strong>';
+            document.getElementById('total-description').innerHTML = '<strong>Your custom home maintenance would cost $' + priceTotal + '.00 per month. Pay now and schedule your 1st maintenance visit.</strong>';
+            stripeContainer.style.display = 'block';
+            for (var i = 0; i < scoringRules.length; i++) {
+                var lowerBound = parseInt(scoringRules[i][0][0]);
+                var upperBound = parseInt(scoringRules[i][0][1]);
+                var price = parseInt(scoringRules[i][1]);
+                if (scoreTotal >= lowerBound && (scoreTotal < upperBound || i == scoringRules.length - 1)) {
+                    stripeButtons[i].style.display = 'block';
                 }
             }
         }
+        formNumber = formNumber + 1;
 
         $.ajax({
             url: form_object.ajax_url,

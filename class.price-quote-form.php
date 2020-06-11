@@ -26,9 +26,9 @@ class Price_Quote_Form
     }
     require_once plugin_dir_path( __FILE__ ) . '/includes/acf/acf.php';
     add_filter( 'acf/settings/url', array( $this, 'form_acf_settings_url' ) );
-    //add_filter( 'acf/settings/show_admin', array( $this, 'form_acf_settings_show_admin' ) );
-    add_filter( 'acf/settings/save_json', array( $this, 'form_acf_json_save_point' ) );
-    add_filter( 'acf/settings/load_json', array( $this, 'form_acf_json_load_point' ) );
+    add_filter( 'acf/settings/show_admin', array( $this, 'form_acf_settings_show_admin' ) );
+    //add_filter( 'acf/settings/save_json', array( $this, 'form_acf_json_save_point' ) );
+    //add_filter( 'acf/settings/load_json', array( $this, 'form_acf_json_load_point' ) );
 
     // Register form and form response post types
     add_action( 'init', array( $this, 'register_form_post_type' ) );
@@ -43,6 +43,9 @@ class Price_Quote_Form
     add_action( 'wp_enqueue_scripts', array($this, 'ajax_form_scripts'));
     add_action( 'wp_ajax_set_form', array($this, 'set_form') );   
     add_action( 'wp_ajax_nopriv_set_form', array($this, 'set_form') ); 
+
+    // Set email content type to HTML
+    add_filter( 'wp_mail_content_type','set_email_content_type' );
   }
 
   // Set the path to the ACF plugin
@@ -50,16 +53,15 @@ class Price_Quote_Form
     return plugin_dir_url( __FILE__ ) . '/includes/acf/';
   }
 
-  /*
   // Hide the ACF admin menu item.
   function form_acf_settings_show_admin( $show_admin ) {
     return false;
   }
-  */
 
+  /*
   function form_acf_json_save_point( $path ) {
     // update path.
-    $path = plugin_dir_path( __FILE__ ) . '/acf-json';
+    $path = plugin_dir_path( __FILE__ ) . 'acf-json';
     var_dump($path);
 
     // return.
@@ -71,11 +73,12 @@ class Price_Quote_Form
     unset( $paths[0] );
 
     // append path
-    $paths[] = plugin_dir_path( __FILE__ ) . '/acf-json';
+    $paths[] = plugin_dir_path( __FILE__ ) . 'acf-json';
 
     // return
     return $paths;
   }
+  */
 
   function register_form_post_type()
   {
@@ -125,7 +128,7 @@ class Price_Quote_Form
                 $form_data = get_sub_field('text_input');
                 $text_title = $form_data['text_title'];
                 $question_text = $form_data['text_question'];
-                $name = strtolower(preg_replace('/[^A-Za-z0-9-]+/', '-', $text_title)) . $form_count;
+                $name = strtolower(preg_replace('/[^A-Za-z0-9-]+/', '-', $question_text)) . $form_count;
                 $questions[] = array($name, $question_text);
                 break;
               case "radio_input_layout":
@@ -133,7 +136,7 @@ class Price_Quote_Form
                 $form_data = get_sub_field('radio_input');
                 $text_title = $form_data['radio_title'];
                 $question_text = $form_data['radio_question'];
-                $name = strtolower(preg_replace('/[^A-Za-z0-9-]+/', '-', $text_title)) . $form_count;
+                $name = strtolower(preg_replace('/[^A-Za-z0-9-]+/', '-', $question_text)) . $form_count;
                 $questions[] = array($name, $question_text);
                 break;
               case "checkbox_input_layout":
@@ -141,7 +144,7 @@ class Price_Quote_Form
                 $form_data = get_sub_field('checkbox_input');
                 $text_title = $form_data['checkbox_title'];
                 $question_text = $form_data['checkbox_question'];
-                $name = strtolower(preg_replace('/[^A-Za-z0-9-]+/', '-', $text_title)) . $form_count;
+                $name = strtolower(preg_replace('/[^A-Za-z0-9-]+/', '-', $question_text)) . $form_count;
                 $questions[] = array($name, $question_text);
                 break;
             }
@@ -319,7 +322,7 @@ class Price_Quote_Form
           $text_question = $form_data['text_question'];
           $text_placeholder = $form_data['text_placeholder'];
           $text_scoring = $form_data['text_scoring'];
-          $name = strtolower(preg_replace('/[^A-Za-z0-9-]+/', '-', $text_title)) . $form_count;
+          $name = strtolower(preg_replace('/[^A-Za-z0-9-]+/', '-', $text_question)) . $form_count;
           $scores = explode(PHP_EOL, $text_scoring);
           $scoring = array();
           foreach ($scores as $score) {
@@ -345,7 +348,7 @@ class Price_Quote_Form
             $radio_title = $form_data['radio_title'];
             $radio_question = $form_data['radio_question'];
             $radio_scoring = $form_data['radio_scoring'];
-            $name = strtolower(preg_replace('/[^A-Za-z0-9-]+/', '-', $radio_title)) . $form_count;
+            $name = strtolower(preg_replace('/[^A-Za-z0-9-]+/', '-', $radio_question)) . $form_count;
             $scores = explode(PHP_EOL, $radio_scoring);
             $scoring = array();
             $radioreturn = '';
@@ -355,7 +358,7 @@ class Price_Quote_Form
                     $option_id = $name . (string) $option_count;
                     $score = explode(' | ', $score);
                     $scoring[] = array('', $score[0], $score[1]);
-                    $radioreturn .= '<label class="label" for="' . $option_id . '"><input type="radio" id="' . $option_id . '" name="' . $name . '" value="' . $score[0] . '" /><b>' . $score[0] . '</b></label>';
+                    $radioreturn .= '<label class="label" for="' . $option_id . '"><input type="radio" id="' . $option_id . '" name="' . $name . '" value="' . $score[0] . '" /><b>' . $score[0] . '</b></label><br>';
                     $option_count = $option_count + 1;
                 }
             }
@@ -369,7 +372,7 @@ class Price_Quote_Form
             $checkbox_title = $form_data['checkbox_title'];
             $checkbox_question = $form_data['checkbox_question'];
             $checkbox_scoring = $form_data['checkbox_scoring'];
-            $name = strtolower(preg_replace('/[^A-Za-z0-9-]+/', '-', $checkbox_title)) . $form_count;
+            $name = strtolower(preg_replace('/[^A-Za-z0-9-]+/', '-', $checkbox_question)) . $form_count;
             $scores = explode(PHP_EOL, $checkbox_scoring);
             $scoring = array();
             $checkboxreturn = '';
@@ -379,7 +382,7 @@ class Price_Quote_Form
                     $option_id = $name . (string) $option_count;
                     $score = explode(' | ', $score);
                     $scoring[] = array('', $score[0], $score[1]);
-                    $checkboxreturn .= '<label class="label" for="' . $option_id . '"><input type="checkbox" id="' . $option_id . '" name="' . $name . '" value="' . $score[0] . '" /><b>' . $score[0] . '</b></label>';
+                    $checkboxreturn .= '<label class="label" for="' . $option_id . '"><input type="checkbox" id="' . $option_id . '" name="' . $name . '" value="' . $score[0] . '" /><b>' . $score[0] . '</b></label><br>';
                     $option_count = $option_count + 1;
                 }
             }
@@ -393,6 +396,11 @@ class Price_Quote_Form
 
     return $formreturn;
 
+  }
+
+  // Change wp_mail content type from default to html
+  function set_email_content_type() {
+    return "text/html";
   }
 
   // Register ajax url with price quote form js
@@ -453,24 +461,44 @@ class Price_Quote_Form
    }
 
    $form_id = $responses['postID'];
-   $email_settings = get_field('email_settings', $form_id);
-   $subject = $email_settings['email_subject'];
-   $content = $email_settings['email_content'];
+   $email_address = get_field('email_settings', $form_id);
+   $title = get_the_title($form_id);
 
-   if ($emailSent == 'false') {
-      $sent = wp_mail( $email, $subject, $content );
-    }
-
-    /*
-    if ($lastForm == 'true') {
-      $meta = get_post_meta($pid);
-      $emailreturn = "";
-      foreach ($meta as $key => $value) {
-        $emailreturn .= $key . ": " + "value";
+   if ($lastForm == 'true') {
+    $form_id = $responses['postID'];
+    $email_address = get_field('email_settings', $form_id);
+ 
+    $meta = get_post_meta($pid);
+    $emailreturn = '<b>Price</b>: $' . $meta['priceTotal'][0] . '.00<br>';
+    $emailreturn .= '<b>Score</b>: ' . $meta['scoreTotal'][0] . '<br>';
+    foreach ($meta as $key => $value) {
+      if ($key != 'formTitle' && $key != 'lastForm' && $key != 'scoreTotal' && $key != 'priceTotal' && $key != 'emailSent' && $key != 'postID' && $key != '_edit_lock') {
+        $key = explode("-", $key);
+        $newKey = '';
+        for ($i = 0; $i < count($key) - 1; $i++) {
+          $newKey .= $key[$i];
+          if ($i != count($key) - 2) {
+            $newKey .= ' ';
+          }
+        }
+        $newKey = html_entity_decode(ucfirst($newKey));
+        $value = $value[0];
+        $values = explode('&#013;', $value);
+        $value = '';
+        for ($i = 0; $i < count($values); $i++) {
+          if ($values[$i] != '') {
+            $value .= $values[$i];
+          }
+          if ($i < count($values) - 2) {
+            $value .= '; ';
+          }
+        }
+        $value = html_entity_decode($value);
+        $emailreturn .= '<b>' . $newKey . '</b>: ' . $value . '<br>';
       }
-      $sent = wp_mail( $email, $email, $emailreturn );
     }
-    */
+    $sent = wp_mail( $email_address, $title . ' Form Response', $emailreturn );
+   }
   
     die();
   }

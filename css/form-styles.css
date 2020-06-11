@@ -12,29 +12,29 @@ button.form-button:hover {
 }
 
 .form-question {
-    font-size: 2.5rem;
+    font-size: 1.5rem;
     text-align: center;
-    margin: 0 auto 4rem;
+    margin: 0 auto 2rem;
 }
 
 .question {
-    font-size: 2.5rem;
+    font-size: 1.5rem;
 }
 
 #total-cost {
-    font-size: 7rem;
-    margin: 0 0 3rem 0;
+    font-size: 3rem;
+    margin: 0 0 1rem 0;
 }
 
 #total-description {
     max-width: 60rem;
-    font-size: 2.2rem;
+    font-size: 1.2rem;
     margin-left: auto;
     margin-right: auto;
 }
 
 #form-outer-div {
-    padding: 3rem 2rem 4rem 2rem;
+    padding: 1.5rem 1rem 2rem 1rem;
     width: 100%;
     background-color: white;
 }
@@ -46,36 +46,37 @@ button.form-button:hover {
     margin-right: auto;
 }
 
-.form-text input {
-    max-width: 60rem;
-    margin-left: auto;
-    margin-right: auto;
-}
-
 .form-text label {
-    font-size: 2rem;
+    font-size: 1rem;
+    vertical-align: middle;
 }
 
 div.multiple-inputs {
     display: inline-block;
     text-align: left;
-    min-width: 15rem;
+    min-width: 4rem;
     margin-left: auto;
     margin-right: auto;
 }
 
-input[type='radio'] { 
-    transform: scale(2); 
-    margin: 0 1.5rem 0 0;
+.form-text input[type='radio'] {  
+    margin: 0 0.5rem 0 0;
+    vertical-align: -2.5px;
 }
 
-input[type='checkbox'] { 
-    transform: scale(2); 
-    margin: 0 1.5rem 0 0;
+.form-text input[type='checkbox'] {  
+    margin: 0 0.5rem 0 0;
+    vertical-align: -2.5px;
 }
 
-label.label {
-    margin-bottom: 1.25rem;
+.form-text input[type='text'] {
+    max-width: 90rem;
+    min-width: 30rem;
+}
+
+.form-text input[type='email'] {
+    max-width: 90rem;
+    min-width: 30rem;
 }
 
 .last-form h2 {
@@ -86,18 +87,7 @@ label.label {
     text-align: center;
 }
 
-.entry-content > #form-outer-div:not(.alignwide):not(.alignfull):not(.alignleft):not(.alignright):not(.is-style-wide) {
-    max-width: unset;
-    width: unset;
-}
-.entry-content > *:last-child {
-    margin-bottom: 0;
-}
-.entry-content > *:first-child {
+#page {
+    padding-top: 0;
     margin-top: 0;
-}
-.entry-content > * {
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: 1.25em;
 }
