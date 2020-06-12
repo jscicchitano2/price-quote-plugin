@@ -165,7 +165,10 @@ jQuery(document).ready( function() {
             form.remove();
             document.querySelector('.last-form').style.display = 'block';
             document.getElementById('total-cost').innerHTML = '<strong>$' + priceTotal + '.00</strong>';
-            document.getElementById('total-description').innerHTML = '<strong>Your custom home maintenance would cost $' + priceTotal + '.00 per month. Pay now and schedule your 1st maintenance visit.</strong>';
+            var finalDescription = document.getElementById('total-description');
+            var description = finalDescription.dataset.text;
+            description = description.replace('%s', '$' + priceTotal + '.00');
+            finalDescription.innerHTML = '<strong>' + description + '</strong>';
             stripeContainer.style.display = 'block';
             for (var i = 0; i < scoringRules.length; i++) {
                 var lowerBound = parseInt(scoringRules[i][0][0]);

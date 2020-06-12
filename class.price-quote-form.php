@@ -13,7 +13,7 @@ class Price_Quote_Form
   const POST_TYPE        = 'form';
   const POST_TYPE_NAME   = 'Form';
   const POST_TYPE_PLURAL = 'Forms';
-  const FORM_LAST        = '<div class="form last-form" style="display:none;"><h2>Your %s Total</h2><div class="form-text"><p id="total-cost"></p><p id="total-description"></p></div></div>';
+  const FORM_LAST        = '<div class="form last-form" style="display:none;"><h2>%s</h2><div class="form-text"><p id="total-cost"></p><p id="total-description" data-text="%s"></p></div></div>';
   const FORM_INPUT       = '<div class="form text-form form-%s" style="%s" data-score="%s"><h2>%s</h2><div class="form-text"><p class="form-question"><b>%s</b></p><input type="%s" name="%s" placeholder="%s" pattern="%s" title="%s" oninput="setCustomValidity(\'\')" required/><p><button class="form-button" type="button">Submit</button></p></div></div>';
   const FORM_TEXT        = '<div class="form text-form form-%s" style="%s" data-score="%s"><h2>%s</h2><div class="form-text"><p class="form-question"><b>%s</b></p><input type="%s" name="%s" placeholder="%s" /><p><button class="form-button" type="button">Submit</button></p></div></div>';
   const FORM_RADIO       = '<div class="form radio-form form-%s" style="%s" data-score="%s"><h2>%s</h2><div class="form-text"><p class="form-question"><div><b class="question">%s</b></div></p><div class="multiple-inputs">%s</div><p><button class="form-button" type="button">Submit</button></p></div></div>';
@@ -27,7 +27,7 @@ class Price_Quote_Form
     }
     require_once plugin_dir_path( __FILE__ ) . '/includes/acf/acf.php';
     add_filter( 'acf/settings/url', array( $this, 'form_acf_settings_url' ) );
-    add_filter( 'acf/settings/show_admin', array( $this, 'form_acf_settings_show_admin' ) );
+    //add_filter( 'acf/settings/show_admin', array( $this, 'form_acf_settings_show_admin' ) );
     //add_filter( 'acf/settings/save_json', array( $this, 'form_acf_json_save_point' ) );
     //add_filter( 'acf/settings/load_json', array( $this, 'form_acf_json_load_point' ) );
 
@@ -54,10 +54,12 @@ class Price_Quote_Form
     return plugin_dir_url( __FILE__ ) . '/includes/acf/';
   }
 
+  /*
   // Hide the ACF admin menu item.
   function form_acf_settings_show_admin( $show_admin ) {
     return false;
   }
+  */
 
   /*
   function form_acf_json_save_point( $path ) {
@@ -284,7 +286,13 @@ class Price_Quote_Form
     $form_styles = get_field( 'custom_styles', $atts->id );
     $form_styles = preg_replace('/\s+/', ' ', $form_styles);
 
-    $lastreturn .= sprintf( self::FORM_LAST, $title );
+    $finalcontent = get_field( 'final_slide', $atts->id );
+    $final_title = $finalcontent['final_title'];
+    $final_description = $finalcontent['final_description'];
+
+    $temp = '';
+
+    $lastreturn = sprintf( self::FORM_LAST, $final_title, $final_description );
 
     $args = array(
       'posts_per_page'   => -1,
