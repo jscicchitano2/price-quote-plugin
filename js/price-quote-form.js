@@ -48,6 +48,7 @@ jQuery(document).ready( function() {
 
         if (questions[formNumber].querySelector('input').type == 'email' && questions[formNumber].querySelector('input').value == '')  return;
 
+        // Validate email, phone number and zip code fields
         var ele = questions[formNumber].querySelector('input');
         var chk_status = ele.checkValidity();
         ele.reportValidity();
@@ -55,11 +56,36 @@ jQuery(document).ready( function() {
             return;
         }
 
+        // Check if entered zip code is within service range
+        if (questions[formNumber].querySelector('.form-question').textContent.includes('zip code')) {
+            var zipcodeInput, zipCode, zipScoring, zipCodes;
+            zipcodeInput = questions[formNumber].querySelector('input');
+            zipCode = zipcodeInput.value;
+            zipScoring = JSON.parse(questions[formNumber].dataset.score);
+            zipCodes = [];
+            zipScoring.forEach(function(values) {
+                values[1].forEach(function(value) {
+                    zipCodes.push(value);
+                });
+            });
+
+            if (!zipCodes.includes(zipCode)) {
+                var errorMessage = "I'm sorry, but we do not currently service your area on a routine basis. " +
+                                   "If you would still like service with a custom quote, please contact us at 360-395-2550.";
+                zipcodeInput.setCustomValidity(errorMessage);
+                zipcodeInput.reportValidity();
+
+                return;
+            }
+        }
+
+        // Process user input
         var inputType = questions[formNumber].querySelector('input').type;
         var submittedVal;
         var submittedVals = [];
         if (inputType === "text") {
             submittedVal = questions[formNumber].querySelector('input').value;
+            submittedVal = submittedVal.replace(/[^A-Za-z0-9@\.\' _-]+/g, '');
         } else {
             options = questions[formNumber].getElementsByTagName('input');
             for (var i = 0; i < options.length; i++) {
@@ -68,7 +94,6 @@ jQuery(document).ready( function() {
                 }
             }
         }
-
         var forms = document.getElementById('price-quote-form').getElementsByTagName('input');
         var formResponses = {};
         var formTitle = document.getElementById('form-outer-div').dataset.title.toLowerCase().replace(' ', '-');
@@ -80,7 +105,9 @@ jQuery(document).ready( function() {
             var type = field.type;
             var name = field.name;
             if (type === 'text' || type === 'email') {
-                formResponses[name] = ['text', field.value];
+                var value = field.value;
+                value = value.replace(/[^A-Za-z0-9@\.\' _-]+/g, '');
+                formResponses[name] = ['text', value];
             } else if (type === 'radio' || type === "checkbox") {
                 if (field.checked) {
                     if (formResponses[name]) {
@@ -92,6 +119,7 @@ jQuery(document).ready( function() {
             }
         }
 
+        // Determine score, update score and price totals
         if (questions[formNumber + 1] != null) {
             var currentScoring = JSON.parse(questions[formNumber].dataset.score);
             currentScoring.forEach(function(values) {
@@ -131,6 +159,7 @@ jQuery(document).ready( function() {
             questions[formNumber].style.display = 'none';
             questions[formNumber + 1].style.display = 'block';
         } else {
+            // Show final slide. Display price total and Stripe payment button.
             questions[formNumber].style.display = 'none';
             formResponses['lastForm'] = 'true';
             form.remove();
@@ -149,6 +178,7 @@ jQuery(document).ready( function() {
         }
         formNumber = formNumber + 1;
 
+        // Submit data via AJAX
         $.ajax({
             url: form_object.ajax_url,
             type:"POST",

@@ -14,6 +14,7 @@ class Price_Quote_Form
   const POST_TYPE_NAME   = 'Form';
   const POST_TYPE_PLURAL = 'Forms';
   const FORM_LAST        = '<div class="form last-form" style="display:none;"><h2>Your %s Total</h2><div class="form-text"><p id="total-cost"></p><p id="total-description"></p></div></div>';
+  const FORM_INPUT       = '<div class="form text-form form-%s" style="%s" data-score="%s"><h2>%s</h2><div class="form-text"><p class="form-question"><b>%s</b></p><input type="%s" name="%s" placeholder="%s" pattern="%s" title="%s" oninput="setCustomValidity(\'\')" required/><p><button class="form-button" type="button">Submit</button></p></div></div>';
   const FORM_TEXT        = '<div class="form text-form form-%s" style="%s" data-score="%s"><h2>%s</h2><div class="form-text"><p class="form-question"><b>%s</b></p><input type="%s" name="%s" placeholder="%s" /><p><button class="form-button" type="button">Submit</button></p></div></div>';
   const FORM_RADIO       = '<div class="form radio-form form-%s" style="%s" data-score="%s"><h2>%s</h2><div class="form-text"><p class="form-question"><div><b class="question">%s</b></div></p><div class="multiple-inputs">%s</div><p><button class="form-button" type="button">Submit</button></p></div></div>';
   const FORM_CHECKBOX    = '<div class="form checkbox-form form-%s" style="%s" data-score="%s"><h2>%s</h2><div class="form-text"><p class="form-question"><div><b class="question">%s</b></div></p><div class="multiple-inputs">%s</div><p><button class="form-button" type="button">Submit</button></p></div></div>';
@@ -45,7 +46,7 @@ class Price_Quote_Form
     add_action( 'wp_ajax_nopriv_set_form', array($this, 'set_form') ); 
 
     // Set email content type to HTML
-    add_filter( 'wp_mail_content_type','set_email_content_type' );
+    add_filter( 'wp_mail_content_type', array($this, 'set_email_content_type') );
   }
 
   // Set the path to the ACF plugin
@@ -340,7 +341,17 @@ class Price_Quote_Form
           }
           $scoring = htmlspecialchars(json_encode($scoring));
           $first = false;
-          $formreturn .= sprintf( self::FORM_TEXT, $form_count, $visibility, $scoring, $text_title, $text_question, $type, $name, $text_placeholder);
+          if (strpos($text_question, 'phone') !== false) {
+            $phone = '^\d{3}-?\d{3}-?\d{4}$';
+            $phone_title = 'Enter a 10-digit phone number';
+            $formreturn .= sprintf( self::FORM_INPUT, $form_count, $visibility, $scoring, $text_title, $text_question, $type, $name, $text_placeholder, $phone, $phone_title);
+          } else if (strpos($text_question, 'zip code') !== false) {
+            $zip = '^\d{5}$';
+            $zip_title = 'Enter a 5-digit zip code';
+            $formreturn .= sprintf( self::FORM_INPUT, $form_count, $visibility, $scoring, $text_title, $text_question, $type, $name, $text_placeholder, $zip, $zip_title);
+          } else {
+            $formreturn .= sprintf( self::FORM_TEXT, $form_count, $visibility, $scoring, $text_title, $text_question, $type, $name, $text_placeholder);
+          }
           break;
         case "radio_input_layout":
             $form_count += 1;
