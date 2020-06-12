@@ -1,9 +1,30 @@
+#form-outer-div {
+    margin-left: -15px;
+}
+
+#form-outer-div h2 {
+    font-family: Catamaran;
+    font-weight: 900;
+    color: #363636;
+}
+
 button.form-button {
     background-color: #425ccc;
-    margin: 2rem 0 2rem;
+    margin: 1.5rem 0 2rem;
+    padding: 6px 4px;
 }
 
 button.form-button:hover {
+    background-color: #41add3;
+}
+
+button.simpay-btn {
+    background-color: #425ccc;
+    margin: 1.5rem 0 2rem;
+    padding: 6px 4px;
+}
+
+button.simpay-btn:hover {
     background-color: #41add3;
 }
 
@@ -15,6 +36,7 @@ button.form-button:hover {
     font-size: 1.5rem;
     text-align: center;
     margin: 0 auto 2rem;
+    font-family: Cataraman;
 }
 
 .question {
@@ -22,13 +44,13 @@ button.form-button:hover {
 }
 
 #total-cost {
-    font-size: 3rem;
-    margin: 0 0 1rem 0;
+    font-size: 2.5rem;
+    margin: 0 0 1.5rem 0;
 }
 
 #total-description {
     max-width: 60rem;
-    font-size: 1.2rem;
+    font-size: 1rem;
     margin-left: auto;
     margin-right: auto;
 }
@@ -49,24 +71,28 @@ button.form-button:hover {
 .form-text label {
     font-size: 1rem;
     vertical-align: middle;
+    color: #363636;
 }
 
 div.multiple-inputs {
     display: inline-block;
     text-align: left;
     min-width: 4rem;
+    margin-top: 1rem;
     margin-left: auto;
     margin-right: auto;
 }
 
 .form-text input[type='radio'] {  
     margin: 0 0.5rem 0 0;
-    vertical-align: -2.5px;
+    vertical-align: -1px;
+    transform: scale(1.25); 
 }
 
 .form-text input[type='checkbox'] {  
     margin: 0 0.5rem 0 0;
-    vertical-align: -2.5px;
+    vertical-align: -1px;
+    transform: scale(1.25); 
 }
 
 .form-text input[type='text'] {
@@ -90,4 +116,10 @@ div.multiple-inputs {
 #page {
     padding-top: 0;
     margin-top: 0;
+}
+
+@media only screen and (max-width: 767px) {
+    .vc_col-xs-6 {
+        width: 100%;
+    }
 }
