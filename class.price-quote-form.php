@@ -620,7 +620,12 @@ class Price_Quote_Form
     $email_address = get_field('email_settings', $form_id);
  
     $meta = get_post_meta($pid);
-    $emailreturn = '<b>Price</b>: $' . $meta['priceTotal'][0] . '.00<br>';
+    $emailreturn = '';
+    if ($meta['priceTotal'][0] == 'custom') {
+      $emailreturn .= '<b>Price</b>: ' . $meta['priceTotal'][0] . '<br>';
+    } else {
+      $emailreturn .= '<b>Price</b>: $' . $meta['priceTotal'][0] . '.00<br>';
+    }
     $emailreturn .= '<b>Score</b>: ' . $meta['scoreTotal'][0] . '<br>';
     foreach ($meta as $key => $value) {
       if ($key != 'formTitle' && $key != 'lastForm' && $key != 'scoreTotal' && $key != 'priceTotal' && $key != 'emailSent' && $key != 'postID' && $key != '_edit_lock') {

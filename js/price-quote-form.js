@@ -165,6 +165,7 @@ jQuery(document).ready( function() {
             var maxScore = parseInt(scoringRules[scoreLength - 1][0][1]);
             var description = '';
             if ( scoreTotal >= maxScore || !zipCodeInArea) {
+                formResponses['priceTotal'] = 'custom';
                 if ( scoreTotal >= maxScore && zipCodeInArea) {
                     description += finalDescription.dataset.maxscore;
                 } else if (!zipCodeInArea) {
