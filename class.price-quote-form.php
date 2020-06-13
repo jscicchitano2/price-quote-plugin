@@ -47,6 +47,10 @@ class Price_Quote_Form
 
     // Set email content type to HTML
     add_filter( 'wp_mail_content_type', array($this, 'set_email_content_type') );
+
+    // Export form response posts to csv file
+    add_action( 'manage_posts_extra_tablenav', array($this, 'admin_post_list_top_export_button') );
+    add_action( 'init', array($this, 'export_all_posts') );
   }
 
   // Set the path to the ACF plugin
@@ -286,6 +290,20 @@ class Price_Quote_Form
     $form_styles = get_field( 'custom_styles', $atts->id );
     $form_styles = preg_replace('/\s+/', ' ', $form_styles);
 
+    /*
+    $arg = array(
+      'post_type' => 'home-maintenance',
+      'post_status' => 'draft',
+      'posts_per_page' => -1,
+    );
+
+    $response_posts = get_posts($arg);
+    $first_post = $response_posts[0];
+    $meta_vals = get_post_meta($first_post->ID);
+    $questions = array('Date');
+    var_dump($response_posts);
+    */
+
     $finalcontent = get_field( 'final_slide', $atts->id );
     $final_title = $finalcontent['final_title'];
     $final_description = $finalcontent['final_description'];
@@ -422,6 +440,118 @@ class Price_Quote_Form
   // Change wp_mail content type from default to html
   function set_email_content_type() {
     return "text/html";
+  }
+
+  // Add csv export button to all form response post types
+  function admin_post_list_top_export_button( $which ) {
+    global $typenow;
+
+    $args = array(
+      'posts_per_page'   => -1,
+      'post_type'        => self::POST_TYPE
+    );
+    
+    $form_posts = get_posts($args);
+
+    foreach ($form_posts as $form) {
+      $post_id = $form->ID;
+      $title = get_the_title($post_id);
+      $slug = str_replace(' ', '-', strtolower($title));
+      $name = str_replace(' ', '_', strtolower($title));
+      if ( $slug === $typenow && 'top' === $which ) {
+        ?>
+        <input type="submit" name="export_all_<?php echo $name; ?>_responses" id="export_all_<?php echo $name; ?>_responses" class="button button-primary" value="Export All Form Responses" />
+        <?php
+      }
+    }
+  }
+
+  // Export form responses to csv
+  function export_all_posts() {
+    $query = new WP_Query(array(
+      'post_type' => self::POST_TYPE,
+      'posts_per_page' => -1
+    ));
+  
+    while ($query->have_posts()) {
+      $query->the_post();
+      $post_id = get_the_ID();
+      $title = get_the_title($post_id);
+      $slug = str_replace(' ', '-', strtolower($title));
+      $name = str_replace(' ', '_', strtolower($title));
+
+      $button_name = 'export_all_' . $name . '_responses';
+
+      if (isset($_GET[$button_name])) {
+        $arg = array(
+          'post_type' => $slug,
+          'post_status' => 'draft',
+          'posts_per_page' => -1,
+        );
+  
+        $response_posts = get_posts($arg);
+        $first_post = $response_posts[0];
+        $meta_vals = get_post_meta($first_post->ID);
+        $questions = array('Date');
+
+        foreach ($meta_vals as $key => $value) {
+          if ($key != 'formTitle' && $key != 'lastForm' && $key != 'scoreTotal' && $key != 'priceTotal' && $key != 'emailSent' && $key != 'postID' && $key != '_edit_lock') {
+            $key = explode("-", $key);
+            $newKey = '';
+            for ($i = 0; $i < count($key) - 1; $i++) {
+              $newKey .= $key[$i];
+              if ($i != count($key) - 2) {
+                $newKey .= ' ';
+              }
+            }
+            $newKey = html_entity_decode(ucfirst($newKey));
+            array_push($questions, $newKey);
+          } else if ($key == 'scoreTotal' || $key == 'priceTotal') {
+            $key = ucfirst(str_replace('Total', '', $key));
+            array_push($questions, $key);
+          }
+        }
+
+        $filename = str_replace('-', '_', $slug) . '_responses';
+        header('Content-type: text/csv');
+        header('Content-Disposition: attachment; filename="' . $filename . '.csv"');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+
+        $file = fopen('php://output', 'w');
+
+        fputcsv($file, $questions);
+
+        foreach ($response_posts as $post) {
+
+            $date = get_the_date('', $post->ID);
+            $meta = get_post_meta($post->ID);
+            $vals = array($date);
+
+            foreach ($meta as $key => $value) {
+              if ($key != 'formTitle' && $key != 'lastForm' && $key != 'emailSent' && $key != 'postID' && $key != '_edit_lock') {
+                $value = $value[0];
+                $values = explode('&#013;', $value);
+                $value = '';
+                for ($i = 0; $i < count($values); $i++) {
+                  if ($values[$i] != '') {
+                    $value .= $values[$i];
+                  }
+                  if ($i < count($values) - 2) {
+                    $value .= '; ';
+                  }
+                }
+                $value = html_entity_decode($value);
+                array_push($vals, $value);
+              }
+            }
+
+            fputcsv($file, $vals);
+        }
+
+        exit();
+      }
+    }
   }
 
   // Register ajax url with price quote form js

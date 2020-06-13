@@ -165,11 +165,10 @@ jQuery(document).ready( function() {
             var maxScore = parseInt(scoringRules[scoreLength - 1][0][1]);
             var description = '';
             if ( scoreTotal >= maxScore || !zipCodeInArea) {
-                if ( scoreTotal >= maxScore ) {
-                    description += finalDescription.dataset.maxscore + '<br>';
-                }
-                if ( !zipCodeInArea ) {
-                    description += finalDescription.dataset.zip + '<br>';
+                if ( scoreTotal >= maxScore && zipCodeInArea) {
+                    description += finalDescription.dataset.maxscore;
+                } else if (!zipCodeInArea) {
+                    description += finalDescription.dataset.zip;
                 }
                 finalDescription.innerHTML = '<strong>' + description + '</strong>';
             } else {
