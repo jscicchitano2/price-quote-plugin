@@ -13,7 +13,7 @@ class Price_Quote_Form
   const POST_TYPE        = 'form';
   const POST_TYPE_NAME   = 'Form';
   const POST_TYPE_PLURAL = 'Forms';
-  const FORM_LAST        = '<div class="form last-form" style="display:none;"><h2>%s</h2><div class="form-text"><p id="total-cost"></p><p id="total-description" data-text="%s"></p></div></div>';
+  const FORM_LAST        = '<div class="form last-form" style="display:none;"><h2>%s</h2><div class="form-text"><p id="total-cost"></p><p id="total-description" data-text="%s" data-maxscore="%s" data-zip="%s"></p></div></div>';
   const FORM_INPUT       = '<div class="form text-form form-%s" style="%s" data-score="%s"><h2>%s</h2><div class="form-text"><p class="form-question"><b>%s</b></p><input type="%s" name="%s" placeholder="%s" pattern="%s" title="%s" oninput="setCustomValidity(\'\')" required/><p><button class="form-button" type="button">Submit</button></p></div></div>';
   const FORM_TEXT        = '<div class="form text-form form-%s" style="%s" data-score="%s"><h2>%s</h2><div class="form-text"><p class="form-question"><b>%s</b></p><input type="%s" name="%s" placeholder="%s" /><p><button class="form-button" type="button">Submit</button></p></div></div>';
   const FORM_RADIO       = '<div class="form radio-form form-%s" style="%s" data-score="%s"><h2>%s</h2><div class="form-text"><p class="form-question"><div><b class="question">%s</b></div></p><div class="multiple-inputs">%s</div><p><button class="form-button" type="button">Submit</button></p></div></div>';
@@ -289,10 +289,12 @@ class Price_Quote_Form
     $finalcontent = get_field( 'final_slide', $atts->id );
     $final_title = $finalcontent['final_title'];
     $final_description = $finalcontent['final_description'];
+    $score_error = $finalcontent['max_score_error_message'];
+    $zip_error = $finalcontent['service_area_message'];
 
     $temp = '';
 
-    $lastreturn = sprintf( self::FORM_LAST, $final_title, $final_description );
+    $lastreturn = sprintf( self::FORM_LAST, $final_title, $final_description, $score_error, $zip_error );
 
     $args = array(
       'posts_per_page'   => -1,

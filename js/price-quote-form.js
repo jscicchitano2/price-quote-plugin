@@ -1,11 +1,12 @@
 // Loops through form questions, records responses, tracks score, and submits data via AJAX
 
 jQuery(document).ready( function() {
-    var formNumber, form, questions, scoreTotal, priceTotal, emailSent, stripeContainer, stripeButtons;
+    var formNumber, form, questions, scoreTotal, priceTotal, emailSent, stripeContainer, stripeButtons, zipCodeInArea;
     formNumber = 0;
     form = document.getElementById('price-quote-form');
     stripeContainer = document.getElementById('stripe-buttons');
     stripeButtons = stripeContainer.children;
+    zipCodeInArea = false;
     
     questions = form.children;
     scoreTotal = 0;
@@ -69,13 +70,8 @@ jQuery(document).ready( function() {
                 });
             });
 
-            if (!zipCodes.includes(zipCode)) {
-                var errorMessage = "I'm sorry, but we do not currently service your area on a routine basis. " +
-                                   "If you would still like service with a custom quote, please contact us at 360-395-2550.";
-                zipcodeInput.setCustomValidity(errorMessage);
-                zipcodeInput.reportValidity();
-
-                return;
+            if (zipCodes.includes(zipCode)) {
+                zipCodeInArea = true;
             }
         }
 
@@ -164,18 +160,31 @@ jQuery(document).ready( function() {
             formResponses['lastForm'] = 'true';
             form.remove();
             document.querySelector('.last-form').style.display = 'block';
-            document.getElementById('total-cost').innerHTML = '<strong>$' + priceTotal + '.00</strong>';
             var finalDescription = document.getElementById('total-description');
-            var description = finalDescription.dataset.text;
-            description = description.replace('%s', '$' + priceTotal + '.00');
-            finalDescription.innerHTML = '<strong>' + description + '</strong>';
-            stripeContainer.style.display = 'block';
-            for (var i = 0; i < scoringRules.length; i++) {
-                var lowerBound = parseInt(scoringRules[i][0][0]);
-                var upperBound = parseInt(scoringRules[i][0][1]);
-                var price = parseInt(scoringRules[i][1]);
-                if (scoreTotal >= lowerBound && (scoreTotal < upperBound || i == scoringRules.length - 1)) {
-                    stripeButtons[i].style.display = 'block';
+            var scoreLength = scoringRules.length;
+            var maxScore = parseInt(scoringRules[scoreLength - 1][0][1]);
+            var description = '';
+            if ( scoreTotal >= maxScore || !zipCodeInArea) {
+                if ( scoreTotal >= maxScore ) {
+                    description += finalDescription.dataset.maxscore + '<br>';
+                }
+                if ( !zipCodeInArea ) {
+                    description += finalDescription.dataset.zip + '<br>';
+                }
+                finalDescription.innerHTML = '<strong>' + description + '</strong>';
+            } else {
+                document.getElementById('total-cost').innerHTML = '<strong>$' + priceTotal + '.00</strong>';
+                description = finalDescription.dataset.text;
+                description = description.replace('%s', '$' + priceTotal + '.00');
+                finalDescription.innerHTML = '<strong>' + description + '</strong>';
+                stripeContainer.style.display = 'block';
+                for (var i = 0; i < scoringRules.length; i++) {
+                    var lowerBound = parseInt(scoringRules[i][0][0]);
+                    var upperBound = parseInt(scoringRules[i][0][1]);
+                    var price = parseInt(scoringRules[i][1]);
+                    if (scoreTotal >= lowerBound && (scoreTotal < upperBound || i == scoringRules.length - 1)) {
+                        stripeButtons[i].style.display = 'block';
+                    }
                 }
             }
         }
