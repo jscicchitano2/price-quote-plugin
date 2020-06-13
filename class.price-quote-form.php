@@ -548,29 +548,32 @@ class Price_Quote_Form
 
             $date = get_the_date('', $post->ID);
             $meta = get_post_meta($post->ID);
-            $vals = array($date, $meta['scoreTotal'][0], $meta['priceTotal'][0]);
+            $vals = array(array($date, $meta['scoreTotal'][0], $meta['priceTotal'][0]));
 
             for ($i = 3; $i < count($questions); $i++) {
-              array_push($vals, '');
+              array_push($vals[0], '');
             }
 
             foreach ($response_keys as $key => $val) {
               $value = $meta[$val][0];
               $values = explode('&#013;', $value);
-              $value = '';
               for ($i = 0; $i < count($values); $i++) {
                 if ($values[$i] != '') {
-                  $value .= $values[$i];
-                }
-                if ($i < count($values) - 2) {
-                  $value .= '; ';
+                  if (!isset($vals[$i])) {
+                    $vals[$i] = array();
+                    for ($j = 0; $j < count($questions); $j++) {
+                      array_push($vals[$i], '');
+                    }
+                  }
+                  $value = html_entity_decode($values[$i]);
+                  $vals[$i][$key + 2] = $value;
                 }
               }
-              $value = html_entity_decode($value);
-              $vals[$key + 2] = $value;
             }
 
-            fputcsv($file, $vals);
+            foreach ($vals as $values) {
+              fputcsv($file, $values);
+            }
         }
 
         exit();
