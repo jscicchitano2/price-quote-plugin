@@ -135,7 +135,9 @@ class Price_Quote_Form
                 $form_data = get_sub_field('text_input');
                 $text_title = $form_data['text_title'];
                 $question_text = $form_data['text_question'];
-                $name = strtolower(preg_replace('/[^A-Za-z0-9-]+/', '-', $question_text)) . $form_count;
+                $name = strtolower(preg_replace('/[^A-Za-z0-9-]+/', '-', $question_text));
+                $name = substr($name, -1) != '-' ? $name . '-' : $name;
+                $name = $name . $form_count;
                 $questions[] = array($name, $question_text);
                 break;
               case "radio_input_layout":
@@ -143,7 +145,9 @@ class Price_Quote_Form
                 $form_data = get_sub_field('radio_input');
                 $text_title = $form_data['radio_title'];
                 $question_text = $form_data['radio_question'];
-                $name = strtolower(preg_replace('/[^A-Za-z0-9-]+/', '-', $question_text)) . $form_count;
+                $name = strtolower(preg_replace('/[^A-Za-z0-9-]+/', '-', $question_text));
+                $name = substr($name, -1) != '-' ? $name . '-' : $name;
+                $name = $name . $form_count;
                 $questions[] = array($name, $question_text);
                 break;
               case "checkbox_input_layout":
@@ -151,7 +155,9 @@ class Price_Quote_Form
                 $form_data = get_sub_field('checkbox_input');
                 $text_title = $form_data['checkbox_title'];
                 $question_text = $form_data['checkbox_question'];
-                $name = strtolower(preg_replace('/[^A-Za-z0-9-]+/', '-', $question_text)) . $form_count;
+                $name = strtolower(preg_replace('/[^A-Za-z0-9-]+/', '-', $question_text));
+                $name = substr($name, -1) != '-' ? $name . '-' : $name;
+                $name = $name . $form_count;
                 $questions[] = array($name, $question_text);
                 break;
             }
@@ -290,20 +296,6 @@ class Price_Quote_Form
     $form_styles = get_field( 'custom_styles', $atts->id );
     $form_styles = preg_replace('/\s+/', ' ', $form_styles);
 
-    /*
-    $arg = array(
-      'post_type' => 'home-maintenance',
-      'post_status' => 'draft',
-      'posts_per_page' => -1,
-    );
-
-    $response_posts = get_posts($arg);
-    $first_post = $response_posts[0];
-    $meta_vals = get_post_meta($first_post->ID);
-    $questions = array('Date');
-    var_dump($response_posts);
-    */
-
     $finalcontent = get_field( 'final_slide', $atts->id );
     $final_title = $finalcontent['final_title'];
     $final_description = $finalcontent['final_description'];
@@ -351,7 +343,9 @@ class Price_Quote_Form
           $text_question = $form_data['text_question'];
           $text_placeholder = $form_data['text_placeholder'];
           $text_scoring = $form_data['text_scoring'];
-          $name = strtolower(preg_replace('/[^A-Za-z0-9-]+/', '-', $text_question)) . $form_count;
+          $name = strtolower(preg_replace('/[^A-Za-z0-9-]+/', '-', $text_question));
+          $name = substr($name, -1) != '-' ? $name . '-' : $name;
+          $name = $name . $form_count;
           $scores = explode(PHP_EOL, $text_scoring);
           $scoring = array();
           foreach ($scores as $score) {
@@ -387,7 +381,9 @@ class Price_Quote_Form
             $radio_title = $form_data['radio_title'];
             $radio_question = $form_data['radio_question'];
             $radio_scoring = $form_data['radio_scoring'];
-            $name = strtolower(preg_replace('/[^A-Za-z0-9-]+/', '-', $radio_question)) . $form_count;
+            $name = strtolower(preg_replace('/[^A-Za-z0-9-]+/', '-', $radio_question));
+            $name = substr($name, -1) != '-' ? $name . '-' : $name;
+            $name = $name . $form_count;
             $scores = explode(PHP_EOL, $radio_scoring);
             $scoring = array();
             $radioreturn = '';
@@ -411,7 +407,9 @@ class Price_Quote_Form
             $checkbox_title = $form_data['checkbox_title'];
             $checkbox_question = $form_data['checkbox_question'];
             $checkbox_scoring = $form_data['checkbox_scoring'];
-            $name = strtolower(preg_replace('/[^A-Za-z0-9-]+/', '-', $checkbox_question)) . $form_count;
+            $name = strtolower(preg_replace('/[^A-Za-z0-9-]+/', '-', $checkbox_question));
+            $name = substr($name, -1) != '-' ? $name . '-' : $name;
+            $name = $name . $form_count;
             $scores = explode(PHP_EOL, $checkbox_scoring);
             $scoring = array();
             $checkboxreturn = '';
@@ -480,6 +478,29 @@ class Price_Quote_Form
       $slug = str_replace(' ', '-', strtolower($title));
       $name = str_replace(' ', '_', strtolower($title));
 
+      $questions = array('Date');
+      if ( have_rows( 'form', $atts->id ) ) {
+        array_push($questions, 'Score', 'Price');
+        while ( have_rows( 'form', $atts->id ) ) : the_row();
+          $layout = get_row_layout();
+          switch ( $layout ) {
+            case "text_input_layout":
+              $form_data = get_sub_field('text_input');
+              array_push($questions, $form_data['text_abbreviated']);
+              break;
+            case "radio_input_layout":
+              $form_data = get_sub_field('radio_input');
+              array_push($questions, $form_data['radio_abbreviated']);
+              break;
+            case "checkbox_input_layout":
+              $form_data = get_sub_field('checkbox_input');
+              array_push($questions, $form_data['checkbox_abbreviated']);
+              break;
+            break;
+          } 
+        endwhile;
+      }
+
       $button_name = 'export_all_' . $name . '_responses';
 
       if (isset($_GET[$button_name])) {
@@ -490,27 +511,28 @@ class Price_Quote_Form
         );
   
         $response_posts = get_posts($arg);
-        $first_post = $response_posts[0];
-        $meta_vals = get_post_meta($first_post->ID);
-        $questions = array('Date');
+        $longest_post_ID = 0;
+        $longest_post = 0;
+        foreach ($response_posts as $post) {
+          if (count(get_post_meta($post->ID)) > $longest_post) {
+            $longest_post = count(get_post_meta($post->ID));
+            $longest_post_ID = $post->ID;
+          }
+        }
+        $meta_vals = get_post_meta($longest_post_ID
+      );
+
+        $response_keys = array();
 
         foreach ($meta_vals as $key => $value) {
           if ($key != 'formTitle' && $key != 'lastForm' && $key != 'scoreTotal' && $key != 'priceTotal' && $key != 'emailSent' && $key != 'postID' && $key != '_edit_lock') {
-            $key = explode("-", $key);
-            $newKey = '';
-            for ($i = 0; $i < count($key) - 1; $i++) {
-              $newKey .= $key[$i];
-              if ($i != count($key) - 2) {
-                $newKey .= ' ';
-              }
-            }
-            $newKey = html_entity_decode(ucfirst($newKey));
-            array_push($questions, $newKey);
-          } else if ($key == 'scoreTotal' || $key == 'priceTotal') {
-            $key = ucfirst(str_replace('Total', '', $key));
-            array_push($questions, $key);
-          }
+            $newKey = explode("-", $key);
+            $num = end($newKey);
+            $response_keys[$num] = $key;
+          } 
         }
+
+        ksort($response_keys);
 
         $filename = str_replace('-', '_', $slug) . '_responses';
         header('Content-type: text/csv');
@@ -526,24 +548,26 @@ class Price_Quote_Form
 
             $date = get_the_date('', $post->ID);
             $meta = get_post_meta($post->ID);
-            $vals = array($date);
+            $vals = array($date, $meta['scoreTotal'][0], $meta['priceTotal'][0]);
 
-            foreach ($meta as $key => $value) {
-              if ($key != 'formTitle' && $key != 'lastForm' && $key != 'emailSent' && $key != 'postID' && $key != '_edit_lock') {
-                $value = $value[0];
-                $values = explode('&#013;', $value);
-                $value = '';
-                for ($i = 0; $i < count($values); $i++) {
-                  if ($values[$i] != '') {
-                    $value .= $values[$i];
-                  }
-                  if ($i < count($values) - 2) {
-                    $value .= '; ';
-                  }
+            for ($i = 3; $i < count($questions); $i++) {
+              array_push($vals, '');
+            }
+
+            foreach ($response_keys as $key => $val) {
+              $value = $meta[$val][0];
+              $values = explode('&#013;', $value);
+              $value = '';
+              for ($i = 0; $i < count($values); $i++) {
+                if ($values[$i] != '') {
+                  $value .= $values[$i];
                 }
-                $value = html_entity_decode($value);
-                array_push($vals, $value);
+                if ($i < count($values) - 2) {
+                  $value .= '; ';
+                }
               }
+              $value = html_entity_decode($value);
+              $vals[$key + 2] = $value;
             }
 
             fputcsv($file, $vals);
