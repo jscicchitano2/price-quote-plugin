@@ -149,7 +149,6 @@ jQuery(document).ready( function() {
             formResponses['scoreTotal'] = scoreTotal;
             formResponses['priceTotal'] = priceTotal;
             formResponses['emailSent'] = emailSent;
-            formResponses['postID'] = postID;
             formResponses['lastForm'] = 'false';
 
             questions[formNumber].style.display = 'none';
@@ -189,6 +188,7 @@ jQuery(document).ready( function() {
             }
         }
         formNumber = formNumber + 1;
+        formResponses['postID'] = postID;
 
         // Submit data via AJAX
         $.ajax({

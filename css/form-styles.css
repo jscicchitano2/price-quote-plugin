@@ -122,4 +122,32 @@ div.multiple-inputs {
     .vc_col-xs-6 {
         width: 100%;
     }
+
+    div.multiple-inputs {
+        margin-left: 2rem;
+    }
+}
+
+@media only screen and (max-width: 550px) {
+    .form-text input[type='text'] {
+        max-width: 90rem;
+        min-width: 25rem;
+    }
+    
+    .form-text input[type='email'] {
+        max-width: 90rem;
+        min-width: 25rem;
+    }
+}
+
+@media only screen and (max-width: 450px) {
+    .form-text input[type='text'] {
+        max-width: 90rem;
+        min-width: 17rem;
+    }
+    
+    .form-text input[type='email'] {
+        max-width: 90rem;
+        min-width: 17rem;
+    }
 }

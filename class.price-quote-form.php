@@ -27,7 +27,7 @@ class Price_Quote_Form
     }
     require_once plugin_dir_path( __FILE__ ) . '/includes/acf/acf.php';
     add_filter( 'acf/settings/url', array( $this, 'form_acf_settings_url' ) );
-    //add_filter( 'acf/settings/show_admin', array( $this, 'form_acf_settings_show_admin' ) );
+    add_filter( 'acf/settings/show_admin', array( $this, 'form_acf_settings_show_admin' ) );
     //add_filter( 'acf/settings/save_json', array( $this, 'form_acf_json_save_point' ) );
     //add_filter( 'acf/settings/load_json', array( $this, 'form_acf_json_load_point' ) );
 
@@ -58,12 +58,10 @@ class Price_Quote_Form
     return plugin_dir_url( __FILE__ ) . '/includes/acf/';
   }
 
-  /*
   // Hide the ACF admin menu item.
   function form_acf_settings_show_admin( $show_admin ) {
     return false;
   }
-  */
 
   /*
   function form_acf_json_save_point( $path ) {
@@ -519,8 +517,7 @@ class Price_Quote_Form
             $longest_post_ID = $post->ID;
           }
         }
-        $meta_vals = get_post_meta($longest_post_ID
-      );
+        $meta_vals = get_post_meta($longest_post_ID);
 
         $response_keys = array();
 
@@ -645,8 +642,43 @@ class Price_Quote_Form
    if ($lastForm == 'true') {
     $form_id = $responses['postID'];
     $email_address = get_field('email_settings', $form_id);
+
+    $questions = array();
+    if ( have_rows( 'form', $form_id ) ) {
+      while ( have_rows( 'form', $form_id ) ) : the_row();
+        $layout = get_row_layout();
+        switch ( $layout ) {
+          case "text_input_layout":
+            $form_data = get_sub_field('text_input');
+            array_push($questions, array($form_data['text_abbreviated'], ''));
+            break;
+          case "radio_input_layout":
+            $form_data = get_sub_field('radio_input');
+            array_push($questions, array($form_data['radio_abbreviated'], ''));
+            break;
+          case "checkbox_input_layout":
+            $form_data = get_sub_field('checkbox_input');
+            array_push($questions, array($form_data['checkbox_abbreviated'], ''));
+            break;
+          break;
+        } 
+      endwhile;
+    }
  
     $meta = get_post_meta($pid);
+    $response_keys = array();
+
+    foreach ($meta as $key => $value) {
+      if ($key != 'formTitle' && $key != 'lastForm' && $key != 'scoreTotal' && $key != 'priceTotal' && $key != 'emailSent' && $key != 'postID' && $key != '_edit_lock') {
+        $newKey = explode("-", $key);
+        $num = end($newKey);
+        $response_keys[$num] = $value[0];
+      } 
+    }
+
+    ksort($response_keys);
+
+
     $emailreturn = '';
     if ($meta['priceTotal'][0] == 'custom') {
       $emailreturn .= '<b>Price</b>: ' . $meta['priceTotal'][0] . '<br>';
@@ -654,31 +686,22 @@ class Price_Quote_Form
       $emailreturn .= '<b>Price</b>: $' . $meta['priceTotal'][0] . '.00<br>';
     }
     $emailreturn .= '<b>Score</b>: ' . $meta['scoreTotal'][0] . '<br>';
-    foreach ($meta as $key => $value) {
-      if ($key != 'formTitle' && $key != 'lastForm' && $key != 'scoreTotal' && $key != 'priceTotal' && $key != 'emailSent' && $key != 'postID' && $key != '_edit_lock') {
-        $key = explode("-", $key);
-        $newKey = '';
-        for ($i = 0; $i < count($key) - 1; $i++) {
-          $newKey .= $key[$i];
-          if ($i != count($key) - 2) {
-            $newKey .= ' ';
-          }
+    foreach ($response_keys as $key => $value) {
+      $values = explode('&#013;', $value);
+      $value = '';
+      for ($i = 0; $i < count($values); $i++) {
+        if ($values[$i] != '') {
+          $value .= $values[$i];
         }
-        $newKey = html_entity_decode(ucfirst($newKey));
-        $value = $value[0];
-        $values = explode('&#013;', $value);
-        $value = '';
-        for ($i = 0; $i < count($values); $i++) {
-          if ($values[$i] != '') {
-            $value .= $values[$i];
-          }
-          if ($i < count($values) - 2) {
-            $value .= '; ';
-          }
+        if ($i < count($values) - 2) {
+          $value .= '; ';
         }
-        $value = html_entity_decode($value);
-        $emailreturn .= '<b>' . $newKey . '</b>: ' . $value . '<br>';
       }
+      $value = html_entity_decode($value);
+      $questions[$key - 1][1] = $value;
+    }
+    foreach ($questions as $question) {
+      $emailreturn .= '<b>' . $question[0] . '</b>: ' . $question[1] . '<br>';
     }
     $sent = wp_mail( $email_address, $title . ' Form Response', $emailreturn );
    }
