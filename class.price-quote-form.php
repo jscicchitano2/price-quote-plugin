@@ -294,6 +294,73 @@ class Price_Quote_Form
     $form_styles = get_field( 'custom_styles', $atts->id );
     $form_styles = preg_replace('/\s+/', ' ', $form_styles);
 
+
+    $questions = array('Date');
+    if ( have_rows( 'form', $atts->id ) ) {
+      array_push($questions, 'Score', 'Price');
+      while ( have_rows( 'form', $atts->id ) ) : the_row();
+        $layout = get_row_layout();
+        switch ( $layout ) {
+          case "text_input_layout":
+            $form_data = get_sub_field('text_input');
+            array_push($questions, $form_data['text_abbreviated']);
+            break;
+          case "radio_input_layout":
+            $form_data = get_sub_field('radio_input');
+            array_push($questions, $form_data['radio_abbreviated']);
+            break;
+          case "checkbox_input_layout":
+            $form_data = get_sub_field('checkbox_input');
+            array_push($questions, $form_data['checkbox_abbreviated']);
+            break;
+          break;
+        } 
+      endwhile;
+    }
+
+    $meta_vals = get_post_meta(69548);
+
+    $response_keys = array();
+
+    foreach ($meta_vals as $key => $value) {
+      if ($key != 'formTitle' && $key != 'lastForm' && $key != 'scoreTotal' && $key != 'priceTotal' && $key != 'emailSent' && $key != 'postID' && $key != '_edit_lock') {
+        $newKey = explode("-", $key);
+        $num = end($newKey);
+        $response_keys[$num] = $key;
+      } 
+    }
+
+    ksort($response_keys);
+
+    $date = get_the_date('', 69548);
+    $meta = get_post_meta(69548);
+    $vals = array($date, $meta['scoreTotal'][0], $meta['priceTotal'][0]);
+
+    for ($i = 3; $i < count($questions) - 3; $i++) {
+      array_push($vals, '');
+    }
+    var_dump($questions);
+
+    var_dump($vals);
+
+    foreach ($response_keys as $key => $value) {
+      $val = $meta[$value][0];
+      $values = explode('&#013;', $val);
+      $value = '';
+      for ($i = 0; $i < count($values); $i++) {
+        if ($values[$i] != '') {
+          $value .= $values[$i];
+        }
+        if ($i < count($values) - 2) {
+          $value .= '; ';
+        }
+      }
+      $value = html_entity_decode($value);
+      $vals[$key - 1] = $value;
+    }
+    var_dump($vals);
+
+
     $finalcontent = get_field( 'final_slide', $atts->id );
     $final_title = $finalcontent['final_title'];
     $final_description = $finalcontent['final_description'];
@@ -477,9 +544,9 @@ class Price_Quote_Form
       $name = str_replace(' ', '_', strtolower($title));
 
       $questions = array('Date');
-      if ( have_rows( 'form', $atts->id ) ) {
+      if ( have_rows( 'form', $post_id ) ) {
         array_push($questions, 'Score', 'Price');
-        while ( have_rows( 'form', $atts->id ) ) : the_row();
+        while ( have_rows( 'form', $post_id ) ) : the_row();
           $layout = get_row_layout();
           switch ( $layout ) {
             case "text_input_layout":
@@ -543,34 +610,31 @@ class Price_Quote_Form
 
         foreach ($response_posts as $post) {
 
-            $date = get_the_date('', $post->ID);
-            $meta = get_post_meta($post->ID);
-            $vals = array(array($date, $meta['scoreTotal'][0], $meta['priceTotal'][0]));
+          $date = get_the_date('', $post->ID);
+          $meta = get_post_meta($post->ID);
+          $vals = array($date, $meta['scoreTotal'][0], $meta['priceTotal'][0]);
 
-            for ($i = 3; $i < count($questions); $i++) {
-              array_push($vals[0], '');
-            }
+          for ($i = 3; $i < count($questions); $i++) {
+            array_push($vals, '');
+          }
 
-            foreach ($response_keys as $key => $val) {
-              $value = $meta[$val][0];
-              $values = explode('&#013;', $value);
-              for ($i = 0; $i < count($values); $i++) {
-                if ($values[$i] != '') {
-                  if (!isset($vals[$i])) {
-                    $vals[$i] = array();
-                    for ($j = 0; $j < count($questions); $j++) {
-                      array_push($vals[$i], '');
-                    }
-                  }
-                  $value = html_entity_decode($values[$i]);
-                  $vals[$i][$key + 2] = $value;
-                }
+          foreach ($response_keys as $key => $value) {
+            $val = $meta[$value][0];
+            $values = explode('&#013;', $val);
+            $value = '';
+            for ($i = 0; $i < count($values); $i++) {
+              if ($values[$i] != '') {
+                $value .= $values[$i];
+              }
+              if ($i < count($values) - 2) {
+                $value .= '; ';
               }
             }
+            $value = html_entity_decode($value);
+            $vals[$key + 2] = $value;
+          }
 
-            foreach ($vals as $values) {
-              fputcsv($file, $values);
-            }
+          fputcsv($file, $vals);
         }
 
         exit();
