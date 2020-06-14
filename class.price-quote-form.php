@@ -15,7 +15,7 @@ class Price_Quote_Form
   const POST_TYPE_PLURAL = 'Forms';
   const FORM_LAST        = '<div class="form last-form" style="display:none;"><h2>%s</h2><div class="form-text"><p id="total-cost"></p><p id="total-description" data-text="%s" data-maxscore="%s" data-zip="%s"></p></div></div>';
   const FORM_INPUT       = '<div class="form text-form form-%s" style="%s" data-score="%s"><h2>%s</h2><div class="form-text"><p class="form-question"><b>%s</b></p><input type="%s" name="%s" placeholder="%s" pattern="%s" title="%s" oninput="setCustomValidity(\'\')" required/><p><button class="form-button" type="button">Submit</button></p></div></div>';
-  const FORM_TEXT        = '<div class="form text-form form-%s" style="%s" data-score="%s"><h2>%s</h2><div class="form-text"><p class="form-question"><b>%s</b></p><input type="%s" name="%s" placeholder="%s" /><p><button class="form-button" type="button">Submit</button></p></div></div>';
+  const FORM_TEXT        = '<div class="form text-form form-%s" style="%s" data-score="%s"><h2>%s</h2><div class="form-text"><p class="form-question"><b>%s</b></p><input type="%s" name="%s" placeholder="%s" required/><p><button class="form-button" type="button">Submit</button></p></div></div>';
   const FORM_RADIO       = '<div class="form radio-form form-%s" style="%s" data-score="%s"><h2>%s</h2><div class="form-text"><p class="form-question"><div><b class="question">%s</b></div></p><div class="multiple-inputs">%s</div><p><button class="form-button" type="button">Submit</button></p></div></div>';
   const FORM_CHECKBOX    = '<div class="form checkbox-form form-%s" style="%s" data-score="%s"><h2>%s</h2><div class="form-text"><p class="form-question"><div><b class="question">%s</b></div></p><div class="multiple-inputs">%s</div><p><button class="form-button" type="button">Submit</button></p></div></div>';
 
@@ -293,73 +293,6 @@ class Price_Quote_Form
 
     $form_styles = get_field( 'custom_styles', $atts->id );
     $form_styles = preg_replace('/\s+/', ' ', $form_styles);
-
-
-    $questions = array('Date');
-    if ( have_rows( 'form', $atts->id ) ) {
-      array_push($questions, 'Score', 'Price');
-      while ( have_rows( 'form', $atts->id ) ) : the_row();
-        $layout = get_row_layout();
-        switch ( $layout ) {
-          case "text_input_layout":
-            $form_data = get_sub_field('text_input');
-            array_push($questions, $form_data['text_abbreviated']);
-            break;
-          case "radio_input_layout":
-            $form_data = get_sub_field('radio_input');
-            array_push($questions, $form_data['radio_abbreviated']);
-            break;
-          case "checkbox_input_layout":
-            $form_data = get_sub_field('checkbox_input');
-            array_push($questions, $form_data['checkbox_abbreviated']);
-            break;
-          break;
-        } 
-      endwhile;
-    }
-
-    $meta_vals = get_post_meta(69548);
-
-    $response_keys = array();
-
-    foreach ($meta_vals as $key => $value) {
-      if ($key != 'formTitle' && $key != 'lastForm' && $key != 'scoreTotal' && $key != 'priceTotal' && $key != 'emailSent' && $key != 'postID' && $key != '_edit_lock') {
-        $newKey = explode("-", $key);
-        $num = end($newKey);
-        $response_keys[$num] = $key;
-      } 
-    }
-
-    ksort($response_keys);
-
-    $date = get_the_date('', 69548);
-    $meta = get_post_meta(69548);
-    $vals = array($date, $meta['scoreTotal'][0], $meta['priceTotal'][0]);
-
-    for ($i = 3; $i < count($questions) - 3; $i++) {
-      array_push($vals, '');
-    }
-    var_dump($questions);
-
-    var_dump($vals);
-
-    foreach ($response_keys as $key => $value) {
-      $val = $meta[$value][0];
-      $values = explode('&#013;', $val);
-      $value = '';
-      for ($i = 0; $i < count($values); $i++) {
-        if ($values[$i] != '') {
-          $value .= $values[$i];
-        }
-        if ($i < count($values) - 2) {
-          $value .= '; ';
-        }
-      }
-      $value = html_entity_decode($value);
-      $vals[$key - 1] = $value;
-    }
-    var_dump($vals);
-
 
     $finalcontent = get_field( 'final_slide', $atts->id );
     $final_title = $finalcontent['final_title'];

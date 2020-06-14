@@ -47,8 +47,6 @@ jQuery(document).ready( function() {
 
         if (!questions[formNumber].querySelector('input')) return;
 
-        if (questions[formNumber].querySelector('input').type == 'email' && questions[formNumber].querySelector('input').value == '')  return;
-
         // Validate email, phone number and zip code fields
         var ele = questions[formNumber].querySelector('input');
         var chk_status = ele.checkValidity();
@@ -112,6 +110,24 @@ jQuery(document).ready( function() {
                         formResponses[name] = ['array', field.value];
                     }
                 }
+            }
+        }
+        var currentForms = questions[formNumber].getElementsByTagName('input');
+        var type = currentForms[0].type;
+        if ((type === 'radio' || type === "checkbox") && (questions[formNumber] != questions[questions.length - 1])) {
+            var isChecked = false;
+            for (var i = 0; i < currentForms.length; i++) {
+                var field = currentForms[i];
+                if (field.checked) {
+                    isChecked = true;
+                }
+            }
+            if (!isChecked) {
+                var errorMessage = "This field is required";
+                var currentForm = currentForms[currentForms.length - 1];
+                currentForm.setCustomValidity(errorMessage);
+                currentForm.reportValidity();
+                return;
             }
         }
 
